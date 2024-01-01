@@ -5,6 +5,8 @@ import com.nimbusds.jose.jwk.JWKSelector
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer
 import org.springframework.stereotype.Component
@@ -24,5 +26,11 @@ class RsaKeyPairRepositoryJWKSource(val keyPairRepository: RsaKeyPairRepository)
         val keyPairs = keyPairRepository.findKeyPairs()
         val kid = keyPairs.first().id
         context?.jwsHeader?.keyId(kid)
+
+        if (context?.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
+            val principal = context?.getPrincipal<UsernamePasswordAuthenticationToken>()
+            val authorities = principal?.authorities?.map { it.authority }?.toSet()
+            context?.claims?.claim("roles", authorities)
+        }
     }
 }
