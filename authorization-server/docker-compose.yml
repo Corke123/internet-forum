@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16.1
+    restart: always
+    environment:
+      - POSTGRES_DB=authservice
+      - POSTGRES_USER=authservice-rw
+      - POSTGRES_PASSWORD=authservice-rw
+    ports:
+      - '5432:5432'
