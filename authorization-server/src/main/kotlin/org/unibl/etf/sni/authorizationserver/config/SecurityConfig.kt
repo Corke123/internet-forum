@@ -6,6 +6,7 @@ import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer
@@ -44,7 +45,7 @@ class SecurityConfig {
         http.authorizeHttpRequests {
             it.anyRequest().authenticated()
         }.formLogin {
-            it.loginPage("/login").permitAll()
+            Customizer.withDefaults<FormLoginConfigurer<HttpSecurity>>()
         }
         return http.build()
     }
