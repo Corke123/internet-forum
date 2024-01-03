@@ -5,7 +5,9 @@ import com.nimbusds.jose.jwk.JWKSelector
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
+import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer
@@ -28,14 +30,25 @@ class RsaKeyPairRepositoryJWKSource(val keyPairRepository: RsaKeyPairRepository)
         context?.jwsHeader?.keyId(kid)
 
         if (context?.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
-            val principal = context?.getPrincipal<UsernamePasswordAuthenticationToken>()
-            val authorities = principal?.authorities?.map { it.authority }
-            val roles = authorities?.filter { it.startsWith("ROLE_") }
-            val permissions = authorities?.filter { it.matches(Regex("^comment:(?:write|edit|delete)\$")) }
-            context?.claims?.claims {
-                it["roles"] = roles
-                it["permissions"] = permissions
+            when (val principal = context?.getPrincipal<AbstractAuthenticationToken>()) {
+                is UsernamePasswordAuthenticationToken -> {
+                    println("UsernamePasswordAuthenticationToken")
+                    println(principal.authorities)
+                    val authorities = principal.authorities?.map { it.authority }
+                    val roles = authorities?.filter { it.startsWith("ROLE_") }
+                    val permissions = authorities?.filter { it.matches(Regex("^comment:(?:write|edit|delete)\$")) }
+                    context.claims?.claims {
+                        it["roles"] = roles
+                        it["permissions"] = permissions
+                    }
+                }
+
+                is OAuth2AuthenticationToken -> {
+                    println("Oauth2AuthenticationToken")
+                    println(principal.authorities)
+                }
             }
+
         }
     }
 }

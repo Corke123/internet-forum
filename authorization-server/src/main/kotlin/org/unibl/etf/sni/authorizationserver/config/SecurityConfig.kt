@@ -3,6 +3,7 @@ package org.unibl.etf.sni.authorizationserver.config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.http.MediaType
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -12,6 +13,8 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher
+import org.unibl.etf.sni.authorizationserver.config.federation.FederatedIdentityAuthenticationSuccessHandler
 
 
 @Configuration
@@ -31,7 +34,12 @@ class SecurityConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
             .oidc(Customizer.withDefaults())
         http.exceptionHandling {
-            it.authenticationEntryPoint(LoginUrlAuthenticationEntryPoint("/login"))
+            it.defaultAuthenticationEntryPointFor(
+                LoginUrlAuthenticationEntryPoint("/login"),
+                MediaTypeRequestMatcher(
+                    MediaType.TEXT_HTML
+                )
+            )
         }.oauth2ResourceServer {
             it.jwt(Customizer.withDefaults())
         }
@@ -43,10 +51,16 @@ class SecurityConfig {
     @Order(2)
     fun defaultSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.authorizeHttpRequests {
-            it.anyRequest().authenticated()
+            it.requestMatchers("/assets/**", "/login").permitAll()
+                .anyRequest().authenticated()
         }.formLogin {
-            Customizer.withDefaults<FormLoginConfigurer<HttpSecurity>>()
+            it.loginPage("/login")
+        }.oauth2Login{
+            it.loginPage("/login")
+                .successHandler(authenticationSuccessHandler())
         }
         return http.build()
     }
+
+    private fun authenticationSuccessHandler() = FederatedIdentityAuthenticationSuccessHandler()
 }

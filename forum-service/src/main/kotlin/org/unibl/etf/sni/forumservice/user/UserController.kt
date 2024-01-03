@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.RestController
 class UserController {
 
     @GetMapping("/users/me")
-    fun me(authentication: Authentication) = User(authentication.name)
+    fun me(authentication: Authentication): User {
+        println(authentication.authorities)
+        return User(authentication.name)
+    }
 
     data class User(val username: String)
 }

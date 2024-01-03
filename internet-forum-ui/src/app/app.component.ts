@@ -21,19 +21,10 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.http.get<{ username: string }>("/api/v1/me").subscribe({
+    this.http.get<{ username: string }>("/api/v1/users/me").subscribe({
       next: value => this.me = value.username,
       error: err => console.log(err)
     })
 
-    this.http.get<{role: string}>("/api/v1/admin").subscribe({
-      next: value => this.admin = true,
-      error: err => console.log(err)
-    })
-
-    this.http.get<{role: string}>("/api/v1/user").subscribe({
-      next: value => this.user = true,
-      error: err => console.log(err)
-    })
   }
 }
