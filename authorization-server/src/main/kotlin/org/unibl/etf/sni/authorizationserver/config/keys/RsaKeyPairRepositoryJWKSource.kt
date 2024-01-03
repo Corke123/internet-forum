@@ -29,7 +29,7 @@ class RsaKeyPairRepositoryJWKSource(val keyPairRepository: RsaKeyPairRepository)
 
         if (context?.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
             val principal = context?.getPrincipal<UsernamePasswordAuthenticationToken>()
-            val authorities = principal?.authorities?.map { it.authority }?.toSet()
+            val authorities = principal?.authorities?.map { it.authority }
             context?.claims?.claim("roles", authorities)
         }
     }
