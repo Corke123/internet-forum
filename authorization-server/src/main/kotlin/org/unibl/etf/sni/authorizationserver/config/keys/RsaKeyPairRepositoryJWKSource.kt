@@ -30,7 +30,12 @@ class RsaKeyPairRepositoryJWKSource(val keyPairRepository: RsaKeyPairRepository)
         if (context?.tokenType == OAuth2TokenType.ACCESS_TOKEN) {
             val principal = context?.getPrincipal<UsernamePasswordAuthenticationToken>()
             val authorities = principal?.authorities?.map { it.authority }
-            context?.claims?.claim("roles", authorities)
+            val roles = authorities?.filter { it.startsWith("ROLE_") }
+            val permissions = authorities?.filter { it.matches(Regex("^comment:(?:write|edit|delete)\$")) }
+            context?.claims?.claims {
+                it["roles"] = roles
+                it["permissions"] = permissions
+            }
         }
     }
 }
