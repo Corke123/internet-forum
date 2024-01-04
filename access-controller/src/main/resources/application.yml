@@ -18,3 +18,13 @@ spring:
   threads:
     virtual:
       enabled: true
+  web:
+    resources:
+      static-locations: classpath:/static/browser
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: debug
+    org.springframework.security: debug
+    org.springframework.security.oauth2: debug

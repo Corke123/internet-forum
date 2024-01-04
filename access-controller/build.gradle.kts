@@ -1,3 +1,4 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -47,4 +48,22 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.register<Exec>("angularBuild") {
+    description = "Builds the Angular UI"
+    group = "build"
+    workingDir = file("$projectDir/src/main/angular/ui")
+
+    val command = if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        "cmd /c ng build"
+    } else {
+        "/bin/sh -c 'ng build'"
+    }
+
+    commandLine(*command.split(" ").toTypedArray())
+}
+
+tasks.named("processResources") {
+    dependsOn("angularBuild")
 }

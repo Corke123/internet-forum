@@ -23,10 +23,6 @@ class GatewayConfig {
                     }
                     uri("http://127.0.0.1:8081")
                 }
-                route {
-                    path("/**")
-                    uri("http://127.0.0.1:4200")
-                }
             }
     }
 }
