@@ -1,0 +1,26 @@
+<mat-toolbar color="primary" fxLayout="row" fxLayoutAlign="space-between center">
+  <span>Internet forum</span>
+  <nav>
+    <ul fxLayout="row">
+      <li>
+        <button mat-button routerLink="users">
+          USERS
+        </button>
+      </li>
+      <li>
+        <button mat-button routerLink="logged-out">
+          LOGGED OUT
+        </button>
+      </li>
+      <li>
+        <button mat-button [matMenuTriggerFor]="menu">
+          {{ username }}
+          <mat-icon iconPositionEnd>expand_more</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="onLogout()">Logout</button>
+        </mat-menu>
+      </li>
+    </ul>
+  </nav>
+</mat-toolbar>

@@ -1,0 +1,16 @@
+li {
+  list-style-type: none;
+}
+
+li a:hover,
+li button:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.active-link {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+mat-divider {
+  background: gray;
+}
