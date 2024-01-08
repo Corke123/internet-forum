@@ -7,7 +7,6 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer
@@ -16,6 +15,8 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher
 import org.unibl.etf.sni.authorizationserver.config.federation.FederatedIdentityAuthenticationSuccessHandler
 
+
+private const val loginEndpoint = "/login"
 
 @Configuration
 class SecurityConfig {
@@ -35,13 +36,15 @@ class SecurityConfig {
             .oidc(Customizer.withDefaults())
         http.exceptionHandling {
             it.defaultAuthenticationEntryPointFor(
-                LoginUrlAuthenticationEntryPoint("/login"),
+                LoginUrlAuthenticationEntryPoint(loginEndpoint),
                 MediaTypeRequestMatcher(
                     MediaType.TEXT_HTML
                 )
             )
         }.oauth2ResourceServer {
             it.jwt(Customizer.withDefaults())
+        }.logout {
+            Customizer.withDefaults<Any>()
         }
 
         return http.build()
@@ -51,16 +54,18 @@ class SecurityConfig {
     @Order(2)
     fun defaultSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.authorizeHttpRequests {
-            it.requestMatchers("/assets/**", "/login").permitAll()
+            it.requestMatchers("/assets/**", loginEndpoint).permitAll()
                 .anyRequest().authenticated()
         }.formLogin {
-            it.loginPage("/login")
-        }.oauth2Login{
-            it.loginPage("/login")
+            it.loginPage(loginEndpoint)
+        }.oauth2Login {
+            it.loginPage(loginEndpoint)
                 .successHandler(authenticationSuccessHandler())
         }
         return http.build()
     }
 
-    private fun authenticationSuccessHandler() = FederatedIdentityAuthenticationSuccessHandler()
 }
+
+private fun authenticationSuccessHandler() = FederatedIdentityAuthenticationSuccessHandler()
+
